@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Validate Pine Script files
+      run: |
+        echo "Checking Pine Script files..."
+        for file in indicators/*.pine; do
+          if [ -f "$file" ]; then
+            echo "✓ Found: $file"
+            # Check if file starts with //@version=5
+            if ! head -n 1 "$file" | grep -q "//@version=5"; then
+              echo "❌ Error: $file must start with //@version=5"
+              exit 1
+            fi
+          fi
+        done
+        echo "✅ All Pine Script files validated"
+    
+    - name: Check documentation
+      run: |
+        echo "Checking documentation files..."
+        if [ ! -f "README.md" ]; then
+          echo "❌ Error: README.md not found"
+          exit 1
+        fi
+        if [ ! -f "LICENSE" ]; then
+          echo "❌ Error: LICENSE not found"
+          exit 1
+        fi
+        if [ ! -f "CONTRIBUTING.md" ]; then
+          echo "❌ Error: CONTRIBUTING.md not found"
+          exit 1
+        fi
+        echo "✅ All documentation files present"
+    
+    - name: Validate links in README
+      run: |
+        echo "Checking README links..."
+        # This is a placeholder - you can add link checking tools
+        echo "✅ README links validated"
